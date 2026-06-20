@@ -1,0 +1,351 @@
+/* Desktop sidebar */
+.route-itinerary-panel {
+  width: min(320px, calc(100vw - 24px));
+  border: 1px solid #3b3b3b;
+  border-radius: 8px;
+  background: rgba(20, 20, 20, 0.95);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.route-itinerary-toggle {
+  width: 100%;
+  border: 0;
+  background: rgba(28, 28, 28, 0.98);
+  color: #fff;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  text-align: left;
+}
+
+.route-itinerary-toggle--desktop {
+  pointer-events: none;
+}
+
+.route-itinerary-handle-track {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 28px;
+  padding: 6px 0 2px;
+  flex-shrink: 0;
+}
+
+.route-itinerary-handle-bar {
+  width: 48px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.62);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.14),
+    0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.route-itinerary-toggle-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.route-itinerary-toggle-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.route-itinerary-toggle-title {
+  font-size: 0.86rem;
+  font-weight: 700;
+  line-height: 1.25;
+  word-break: break-word;
+}
+
+.route-itinerary-toggle-meta {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.route-itinerary-body {
+  padding: 0 8px 8px;
+}
+
+.route-itinerary-description {
+  margin: 0 4px 8px;
+  font-size: 0.76rem;
+  line-height: 1.4;
+  color: #cbd5e1;
+}
+
+.route-itinerary-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.route-itinerary-panel--desktop .route-itinerary-list {
+  max-height: min(52vh, 360px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.route-itinerary-item {
+  width: 100%;
+  border: 1px solid #3b3b3b;
+  border-radius: 6px;
+  background: #1a1a1a;
+  color: #fff;
+  padding: 8px 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.route-itinerary-thumb {
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #111;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.route-itinerary-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.route-itinerary-item:hover {
+  background: #242424;
+}
+
+.route-itinerary-item.active {
+  background: #2b2b2b;
+  border-color: #d4a84b;
+  box-shadow: inset 0 0 0 1px rgba(212, 168, 75, 0.25);
+}
+
+.route-itinerary-num {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: rgba(212, 168, 75, 0.18);
+  border: 1px solid rgba(212, 168, 75, 0.55);
+  color: #f5d78e;
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  line-height: 1;
+}
+
+.route-itinerary-item.active .route-itinerary-num {
+  background: rgba(212, 168, 75, 0.32);
+  border-color: #d4a84b;
+  color: #fff;
+}
+
+.route-itinerary-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.route-itinerary-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.25;
+  word-break: break-word;
+}
+
+.route-itinerary-ko {
+  font-size: 0.72rem;
+  color: #64748b;
+  font-weight: 500;
+  line-height: 1.25;
+  word-break: keep-all;
+}
+
+.route-itinerary-summary {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+/* Mobile bottom sheet */
+.route-itinerary-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 28;
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px 20px 0 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 0;
+  background: rgba(14, 14, 14, 0.98);
+  box-shadow: 0 -16px 48px rgba(0, 0, 0, 0.48);
+  overflow: hidden;
+  pointer-events: auto;
+  will-change: height;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.route-itinerary-sheet:not(.dragging) {
+  transition: height 0.34s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.route-itinerary-sheet-header {
+  flex: 0 0 auto;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.route-itinerary-sheet.dragging .route-itinerary-sheet-header,
+.route-itinerary-sheet.dragging .route-itinerary-sheet-body.sheet-drag-zone {
+  cursor: grabbing;
+}
+
+.route-itinerary-sheet-header-btn {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  padding: 0 14px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  text-align: left;
+  cursor: inherit;
+}
+
+.route-itinerary-sheet.snap-collapsed .route-itinerary-sheet-header-btn {
+  padding-bottom: 8px;
+}
+
+.route-itinerary-sheet-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0 10px 10px;
+  overflow: hidden;
+}
+
+.route-itinerary-sheet-body.sheet-drag-zone {
+  touch-action: none;
+  cursor: grab;
+}
+
+.route-itinerary-sheet.expanded .route-itinerary-sheet-body {
+  touch-action: auto;
+  cursor: default;
+}
+
+.route-itinerary-sheet .route-itinerary-description {
+  flex: 0 0 auto;
+  margin: 4px 2px 8px;
+}
+
+.route-itinerary-sheet .route-itinerary-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+.route-itinerary-sheet.snap-collapsed .route-itinerary-list.preview .route-itinerary-item {
+  padding: 7px 10px;
+}
+
+.route-itinerary-sheet.snap-collapsed .route-itinerary-summary {
+  display: none;
+}
+
+.route-itinerary-sheet.expanded .route-itinerary-list.scrollable {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  padding-bottom: 4px;
+}
+
+.route-itinerary-more-hint {
+  margin: 4px 2px 0;
+  font-size: 0.68rem;
+  color: #64748b;
+  text-align: center;
+  flex: 0 0 auto;
+}
+
+/* Hide scrollbars on mobile sheet list */
+.route-itinerary-sheet .route-itinerary-list.scrollable {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.route-itinerary-sheet .route-itinerary-list.scrollable::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+@media (min-width: 769px) {
+  .route-itinerary-sheet {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .route-itinerary-panel--desktop {
+    display: none;
+  }
+
+  /* Lift action buttons above the route sheet */
+  .bottom-right.action-stack {
+    bottom: calc(
+      var(--route-sheet-height, 0px) + 8px + env(safe-area-inset-bottom, 0px)
+    );
+    transition: bottom 0.34s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  html[data-route-sheet-snap='expanded'] .bottom-right.action-stack {
+    opacity: 0.92;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route-itinerary-sheet:not(.dragging) {
+    transition: none;
+  }
+
+  @media (max-width: 768px) {
+    .bottom-right.action-stack {
+      transition: none;
+    }
+  }
+}

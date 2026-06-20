@@ -1,0 +1,162 @@
+.iam {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.iam-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.iam-head h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.iam-sub {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.4;
+}
+
+.iam-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.65rem;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.iam-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.iam-form label,
+.iam-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.76rem;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.iam-form input,
+.iam-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.5rem;
+  background: rgba(0, 0, 0, 0.25);
+  color: #fff;
+  padding: 7px 9px;
+  font: inherit;
+}
+
+.iam-form-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.iam-btn {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  border-radius: 0.5rem;
+  padding: 7px 12px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.iam-btn--primary {
+  border-color: rgba(245, 196, 81, 0.45);
+  background: rgba(245, 196, 81, 0.14);
+  color: #f5c451;
+}
+
+.iam-flash {
+  margin: 0;
+  color: #7dcea0;
+  font-size: 0.82rem;
+}
+
+.iam-error {
+  margin: 0;
+  color: #ff8a8a;
+  font-size: 0.82rem;
+}
+
+.iam-muted {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.82rem;
+}
+
+.iam-table-wrap {
+  overflow: auto;
+}
+
+.iam-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.iam-table th,
+.iam-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+}
+
+.iam-row-actions {
+  white-space: nowrap;
+}
+
+.iam-link {
+  border: none;
+  background: none;
+  color: #f5c451;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+  margin-left: 10px;
+}
+
+.iam-link:first-child {
+  margin-left: 0;
+}
+
+.iam-link--danger {
+  color: #ff8a8a;
+}
+
+.iam-source-url-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.iam-source-url-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.iam-link--external {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .iam-form-grid {
+    grid-template-columns: 1fr;
+  }
+}

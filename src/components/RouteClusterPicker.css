@@ -1,0 +1,127 @@
+.route-cluster-picker--floating {
+  width: min(268px, calc(100vw - 24px));
+  border: 1px solid rgba(188, 212, 247, 0.24);
+  border-radius: 12px;
+  background: rgba(7, 14, 30, 0.96);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.38);
+  padding: 10px 10px 8px;
+  pointer-events: auto;
+}
+
+.route-cluster-picker-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 860;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 10px calc(84px + env(safe-area-inset-bottom, 0px));
+  background: rgba(0, 0, 0, 0.42);
+}
+
+.route-cluster-picker--sheet {
+  width: min(480px, 100%);
+  border: 1px solid rgba(188, 212, 247, 0.24);
+  border-radius: 16px 16px 12px 12px;
+  background: rgba(7, 14, 30, 0.97);
+  box-shadow: 0 -6px 28px rgba(0, 0, 0, 0.36);
+  padding: 12px 12px 10px;
+}
+
+.route-cluster-picker-header {
+  margin-bottom: 8px;
+}
+
+.route-cluster-picker-title {
+  margin: 0;
+  font-size: 0.84rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #eef3ff;
+}
+
+.route-cluster-picker-subtitle {
+  margin: 2px 0 0;
+  font-size: 0.74rem;
+  line-height: 1.35;
+  color: rgba(232, 240, 255, 0.68);
+}
+
+.route-cluster-picker-list {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.route-cluster-picker-row {
+  display: grid;
+  grid-template-columns: 1.1rem 14px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  color: #fff;
+  padding: 8px 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.route-cluster-picker-row:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(188, 212, 247, 0.32);
+}
+
+.route-cluster-picker-row--spot {
+  grid-template-columns: 1.35rem 1fr auto;
+}
+
+.route-cluster-picker-step {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: rgba(184, 206, 255, 0.92);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.route-cluster-picker-emoji {
+  font-size: 0.95rem;
+  line-height: 1;
+  text-align: center;
+}
+
+.route-cluster-picker-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.route-cluster-picker-view {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: rgba(184, 206, 255, 0.88);
+}
+
+.route-cluster-picker-close {
+  width: 100%;
+  min-height: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.route-cluster-picker-close:hover {
+  background: rgba(255, 255, 255, 0.05);
+}

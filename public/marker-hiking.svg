@@ -1,0 +1,13 @@
+<svg width="40" height="48" viewBox="0 0 40 48" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="ds-hike" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-color="#000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <path d="M20 1 C9.5 1 1 9.5 1 20 C1 31 20 47 20 47 C20 47 39 31 39 20 C39 9.5 30.5 1 20 1 Z"
+        fill="#047857" stroke="#064e3b" stroke-width="1.5" filter="url(#ds-hike)"/>
+  <circle cx="20" cy="18" r="9" fill="#ecfdf5" stroke="#064e3b" stroke-width="1"/>
+  <!-- mountain peaks -->
+  <path d="M12 23 L16.5 14 L20 18 L24 12 L28 23 Z" fill="none" stroke="#064e3b" stroke-width="1.4" stroke-linejoin="round"/>
+  <path d="M15 23h10" stroke="#059669" stroke-width="1" stroke-linecap="round"/>
+</svg>

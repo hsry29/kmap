@@ -1,0 +1,76 @@
+/**
+ * 한국 고유 음식명 — 상호 Display Name · Kakao 카테고리 공통.
+ * 음절 분리(Hae Jang Guk)나 의미 직역(Soup Rice, Hangover Soup) 금지.
+ * @type {[string, string][]}
+ */
+export const KOREAN_FOOD_NAME_PAIRS = [
+  ['순대국', 'Sundaeguk'],
+  ['설렁탕', 'Seolleongtang'],
+  ['삼계탕', 'Samgyetang'],
+  ['감자탕', 'Gamjatang'],
+  ['해장국', 'Haejangguk'],
+  ['곰탕', 'Gomtang'],
+  ['추어탕', 'Chueotang'],
+  ['매운탕', 'Maeuntang'],
+  ['알탕', 'Altang'],
+  ['아구찜', 'Agujjim'],
+  ['닭볶음탕', 'Dakbokkeumtang'],
+  ['부대찌개', 'Budaejjigae'],
+  ['김치찌개', 'Kimchijjigae'],
+  ['된장찌개', 'Doenjangjjigae'],
+  ['순두부찌개', 'Sundubujjigae'],
+  ['돼지국밥', 'Dwaejigukbap'],
+  ['물냉면', 'Mulnaengmyeon'],
+  ['비빔냉면', 'Bibimnaengmyeon'],
+  ['막국수', 'Makguksu'],
+  ['수제비', 'Sujebi'],
+  ['만두국', 'Manduguk'],
+  ['콩국수', 'Kongguksu'],
+  ['라볶이', 'Rabokki'],
+  ['전골', 'Jeongol'],
+  ['찌개', 'Jjigae'],
+  ['국밥', 'Gukbap'],
+  ['칼국수', 'Kalguksu'],
+  ['냉면', 'Naengmyeon'],
+  ['떡볶이', 'Tteokbokki'],
+  ['김밥', 'Gimbap'],
+  ['순대', 'Sundae'],
+  ['튀김', 'Twigim'],
+  ['비빔밥', 'Bibimbap'],
+  ['족발', 'Jokbal'],
+  ['보쌈', 'Bossam'],
+  ['삼겹살', 'Samgyeopsal'],
+  ['갈비', 'Galbi'],
+  ['곱창', 'Gopchang'],
+  ['막창', 'Makchang'],
+  ['한우', 'Hanwoo'],
+  ['면옥', 'Naengmyeon'],
+  ['국수', 'Guksu'],
+  ['만두', 'Mandu'],
+]
+
+/** @type {Record<string, string>} */
+export const KOREAN_FOOD_NAME_MAP = Object.fromEntries(KOREAN_FOOD_NAME_PAIRS)
+
+/** 로마자 음절 표기 → 통합 음식명 (categoryLexicon 패치용) */
+export const KOREAN_FOOD_ROMANIZED_PATCHES = [
+  ['sun dae guk', 'Sundaeguk'],
+  ['seo lleong tang', 'Seolleongtang'],
+  ['seol leong tang', 'Seolleongtang'],
+  ['sam gye tang', 'Samgyetang'],
+  ['gam ja tang', 'Gamjatang'],
+  ['hae jang guk', 'Haejangguk'],
+  ['guk bap', 'Gukbap'],
+  ['kal guksu', 'Kalguksu'],
+  ['naeng myeon', 'Naengmyeon'],
+  ['tteok bokki', 'Tteokbokki'],
+  ['tteok bok i', 'Tteokbokki'],
+  ['gim bap', 'Gimbap'],
+  ['jok bal', 'Jokbal'],
+  ['bo ssam', 'Bossam'],
+  ['bi bim bap', 'Bibimbap'],
+  ['sun dae', 'Sundae'],
+  ['hangover soup', 'Haejangguk'],
+  ['soup rice', 'Gukbap'],
+  ['soup with rice', 'Gukbap'],
+]

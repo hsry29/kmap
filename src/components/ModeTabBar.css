@@ -1,0 +1,49 @@
+.mode-tab-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.mode-tab-bar > .app-more-menu {
+  flex: 0 0 auto;
+}
+
+.mode-tab-cell {
+  display: flex;
+  min-width: 0;
+}
+
+.mode-tab-cell .simple-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+}
+
+.mode-tab-btn-icon {
+  font-size: 0.9em;
+  line-height: 1;
+}
+
+@media (max-width: 768px) {
+  .mode-tab-bar {
+    width: 100%;
+    gap: 6px;
+  }
+
+  .mode-tab-cell {
+    flex: 1 1 0;
+  }
+
+  .mode-tab-cell .simple-btn {
+    min-width: 0;
+    padding: 0 8px;
+    font-size: 0.78rem;
+  }
+
+  .mode-tab-btn-icon {
+    font-size: 0.85em;
+  }
+}

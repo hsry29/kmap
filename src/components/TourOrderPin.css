@@ -1,0 +1,63 @@
+.tour-order-pin {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  transform: translateY(-2px);
+}
+
+.tour-order-pin-shape {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: var(--tour-pin-color, #2563eb);
+  border: 2.5px solid #fff;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+.tour-order-pin.selected .tour-order-pin-shape {
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.45),
+    0 0 0 3px rgba(255, 255, 255, 0.95),
+    0 0 0 5px var(--tour-pin-color, #2563eb);
+  transform: rotate(-45deg) scale(1.08);
+}
+
+.tour-order-pin-num {
+  transform: rotate(45deg);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  font-variant-numeric: tabular-nums;
+}
+
+.tour-order-pin-num.wide {
+  font-size: 0.88rem;
+}
+
+@media (max-width: 480px) {
+  .tour-order-pin-shape {
+    width: 34px;
+    height: 34px;
+  }
+
+  .tour-order-pin-num {
+    font-size: 0.92rem;
+  }
+
+  .tour-order-pin-num.wide {
+    font-size: 0.8rem;
+  }
+}

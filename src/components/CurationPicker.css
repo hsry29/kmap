@@ -1,0 +1,300 @@
+.curation-picker {
+  position: relative;
+  max-width: min(360px, calc(100vw - 24px));
+}
+
+.curation-picker-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  min-width: 168px;
+  max-width: min(360px, calc(100vw - 24px));
+  min-height: 38px;
+  border: 1px solid #3b3b3b;
+  border-radius: 6px;
+  background: rgba(20, 20, 20, 0.95);
+  color: #fff;
+  padding: 0 12px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.curation-picker-trigger:hover,
+.curation-picker-trigger.open {
+  background: rgba(36, 36, 36, 0.95);
+  border-color: #c4ccd8;
+}
+
+.curation-picker-trigger.open {
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.14),
+    0 4px 14px rgba(0, 0, 0, 0.28);
+}
+
+.curation-picker-trigger--prompt .curation-picker-trigger-text {
+  color: #b4bcc8;
+  font-weight: 500;
+}
+
+.curation-picker-trigger-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.curation-picker-pin {
+  flex-shrink: 0;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.curation-picker-trigger-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.curation-picker-trigger-type {
+  flex-shrink: 0;
+  font-size: 0.78rem;
+  line-height: 1;
+}
+
+.curation-picker-item--route {
+  grid-template-columns: auto 1fr auto;
+}
+
+.curation-picker-item--route .route-color-indicator,
+.curation-picker-trigger-label .route-color-indicator {
+  align-self: center;
+}
+
+.curation-picker-chevron {
+  flex-shrink: 0;
+  font-size: 0.62rem;
+  color: rgba(255, 255, 255, 0.55);
+  transition: transform 0.2s ease;
+}
+
+.curation-picker-trigger.open .curation-picker-chevron {
+  transform: rotate(180deg);
+}
+
+.curation-picker-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  width: min(360px, calc(100vw - 24px));
+  border: 1px solid #3b3b3b;
+  border-radius: 8px;
+  background: rgba(16, 16, 16, 0.98);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+  z-index: 40;
+}
+
+.curation-picker-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.curation-picker-search-icon {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.curation-picker-search input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  padding: 8px 10px;
+  font-size: 0.82rem;
+  font-family: inherit;
+  outline: none;
+}
+
+.curation-picker-search input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.curation-picker-search input:focus {
+  border-color: #f5c451;
+}
+
+.curation-picker-list {
+  max-height: min(60vh, 320px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 6px;
+}
+
+.curation-picker-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.curation-picker-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+}
+
+.curation-picker-group + .curation-picker-group {
+  margin-top: 4px;
+}
+
+.curation-picker-section {
+  margin: 8px 8px 4px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.curation-picker-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: #e5e7eb;
+  padding: 9px 10px;
+  font-size: 0.82rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.curation-picker-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.curation-picker-item.active {
+  border-color: rgba(245, 196, 81, 0.45);
+  background: rgba(245, 196, 81, 0.12);
+}
+
+.curation-picker-item--all {
+  grid-template-columns: 1fr auto;
+  margin-bottom: 4px;
+}
+
+.curation-picker-type {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  border-radius: 4px;
+  padding: 2px 5px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.curation-picker-type--route {
+  color: #bfdbfe;
+  background: rgba(37, 99, 235, 0.35);
+}
+
+.curation-picker-type--spots {
+  color: #fde68a;
+  background: rgba(245, 158, 11, 0.28);
+}
+
+.curation-picker-item-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.curation-picker-count {
+  margin-left: 4px;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 500;
+}
+
+.curation-picker-all-hint {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.42);
+  white-space: nowrap;
+}
+
+.curation-picker-draft {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #fca5a5;
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  border-radius: 4px;
+  padding: 1px 5px;
+  white-space: nowrap;
+}
+
+.curation-picker-empty {
+  margin: 12px 10px;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.curation-picker-explore-header {
+  padding: 12px 12px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.curation-picker-explore-title {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #f3f4f6;
+  line-height: 1.25;
+}
+
+.curation-picker-explore-subtitle {
+  margin: 3px 0 0;
+  font-size: 0.74rem;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.58);
+}
+
+@media (max-width: 768px) {
+  .curation-picker {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .curation-picker-trigger {
+    min-height: 40px;
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+    font-size: 0.8rem;
+  }
+
+  .curation-picker-menu {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .curation-picker-list {
+    max-height: min(50vh, 260px);
+  }
+}

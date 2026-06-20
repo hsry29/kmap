@@ -1,0 +1,143 @@
+.cgf {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cgf--compact {
+  gap: 10px;
+}
+
+.cgf-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cgf-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #f5c451;
+}
+
+.cgf-hint {
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.cgf-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.55rem;
+  color: #fff;
+  padding: 8px 10px;
+  font-size: 0.86rem;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.cgf-input:focus {
+  outline: none;
+  border-color: #f5c451;
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.cgf-input::placeholder {
+  color: rgba(255, 255, 255, 0.32);
+}
+
+.cgf-example {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.cgf-example em {
+  font-style: normal;
+  color: rgba(255, 255, 255, 0.52);
+}
+
+.cgf-image-warn {
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: #ffb347;
+}
+
+.cgf-image-preview {
+  position: relative;
+  margin-top: 6px;
+  border-radius: 0.55rem;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.35);
+  min-height: 96px;
+}
+
+.cgf-image-preview--error {
+  border-color: rgba(255, 107, 107, 0.55);
+}
+
+.cgf-image-preview img {
+  display: block;
+  width: 100%;
+  max-height: 140px;
+  object-fit: cover;
+}
+
+.cgf-image-preview-status {
+  display: block;
+  padding: 8px 10px;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.cgf-image-preview-status--error {
+  color: #ff8a8a;
+}
+
+.cgf-image-preview-status--ok {
+  color: #7dcea0;
+}
+
+.cgf-field--image-compact .cgf-image-preview img {
+  max-height: 110px;
+}
+
+.cgf-image-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.cgf-image-row .cgf-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.cgf-image-upload-btn {
+  flex-shrink: 0;
+  border: 1px solid rgba(245, 196, 81, 0.45);
+  background: rgba(245, 196, 81, 0.12);
+  color: #f5c451;
+  border-radius: 0.55rem;
+  padding: 0 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.cgf-image-upload-btn:hover:not(:disabled) {
+  background: rgba(245, 196, 81, 0.22);
+}
+
+.cgf-image-upload-btn:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.cgf-image-file-input {
+  display: none;
+}
