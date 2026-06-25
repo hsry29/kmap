@@ -5,7 +5,10 @@ import { buildBrowseLinks } from '../utils/seoJsonLd'
  * Crawler-friendly internal links (visually hidden).
  * @param {{ collections: unknown[] }} props
  */
-export function SeoBrowseNav({ collections }) {
+export function SeoBrowseNav({ collections, hidden = false }) {
+  if (hidden) {
+    return null
+  }
   const published = getPublishedCollections(collections)
   const links = buildBrowseLinks(published)
   if (links.length === 0) {

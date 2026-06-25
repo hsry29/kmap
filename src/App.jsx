@@ -1,4 +1,5 @@
 ﻿import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import {
   CustomOverlayMap,
   Map as KakaoMap,
@@ -276,6 +277,9 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(isAdminLoggedIn)
   const [showAdminLogin, setShowAdminLogin] = useState(false)
   const [showAdminPanel, setShowAdminPanel] = useState(false)
+  const location = useLocation()
+  const navigate = useNavigate()
+  const adminUiActive = showAdminLogin || showAdminPanel
   const [collectionPickPrompt, setCollectionPickPrompt] = useState(null)
   const [overlapClusterPick, setOverlapClusterPick] = useState(null)
   const nearbySearchSeq = useRef(0)
@@ -556,17 +560,32 @@ function App() {
     return resolveCuratedPlaceImage(seoPlace, imageCatalog)
   }, [seoPlace, imageCatalog])
 
-  const seoMeta = useMemo(
-    () =>
-      resolveSeoMeta({
-        mode,
-        activeCollection,
-        selectedPlace: seoPlace,
-        imageUrl: seoImageUrl,
+  const seoMeta = useMemo(() => {
+    if (isAdmin || adminUiActive || location.pathname.replace(/\/+$/, '') === '/admin') {
+      return resolveSeoMeta({
+        mode: 'admin',
+        activeCollection: null,
+        selectedPlace: null,
         visibleCollections,
-      }),
-    [mode, activeCollection, seoPlace, seoImageUrl, visibleCollections],
-  )
+      })
+    }
+    return resolveSeoMeta({
+      mode,
+      activeCollection,
+      selectedPlace: seoPlace,
+      imageUrl: seoImageUrl,
+      visibleCollections,
+    })
+  }, [
+    adminUiActive,
+    isAdmin,
+    location.pathname,
+    mode,
+    activeCollection,
+    seoPlace,
+    seoImageUrl,
+    visibleCollections,
+  ])
 
   useSeoRouteSync({
     visibleCollections,
@@ -574,13 +593,12 @@ function App() {
     setMode,
     activeCategory,
     setActiveCategory,
-    selectedPlaceId,
     setSelectedPlaceId,
-    selectedPlaceCollectionId,
     setSelectedPlaceCollectionId,
-    selectedPlace: seoPlace,
+    selectedPlace,
     activeCollection,
     isAdmin,
+    adminUiActive,
   })
 
   const collectionSeoHref = useMemo(() => {
@@ -1211,14 +1229,49 @@ function App() {
   const handleLoginClick = () => {
     if (isAdmin) {
       setShowAdminPanel(true)
+      setShowAdminLogin(false)
+      navigate('/admin')
       return
     }
     if (!isAdminEnabled()) {
       window.alert('Admin is not configured. Add VITE_ADMIN_PASSWORD to .env and restart the dev server.')
       return
     }
+    navigate('/admin')
     setShowAdminLogin(true)
   }
+
+  const closeAdminLogin = useCallback(() => {
+    setShowAdminLogin(false)
+    if (location.pathname.replace(/\/+$/, '') === '/admin') {
+      navigate('/')
+    }
+  }, [location.pathname, navigate])
+
+  const closeAdminPanel = useCallback(() => {
+    setShowAdminPanel(false)
+    if (location.pathname.replace(/\/+$/, '') === '/admin') {
+      navigate('/')
+    }
+  }, [location.pathname, navigate])
+
+  useEffect(() => {
+    const path = location.pathname.replace(/\/+$/, '') || '/'
+    if (path !== '/admin') {
+      return
+    }
+    if (isAdmin) {
+      setShowAdminPanel(true)
+      setShowAdminLogin(false)
+      return
+    }
+    if (isAdminEnabled()) {
+      setShowAdminLogin(true)
+      setShowAdminPanel(false)
+      return
+    }
+    navigate('/', { replace: true })
+  }, [isAdmin, location.pathname, navigate])
 
   const getMapCenterPosition = () => {
     if (!mapRef.current?.getCenter) {
@@ -1673,7 +1726,7 @@ function App() {
   return (
     <main className="map-app">
       <SeoHead meta={seoMeta} />
-      <SeoBrowseNav collections={visibleCollections} />
+      <SeoBrowseNav collections={visibleCollections} hidden={isAdmin || adminUiActive} />
       <ContentStatusBanner
         bootstrap={contentBootstrap}
         emptyCollections={showEmptyPublishedCollections}
@@ -1957,6 +2010,9 @@ function App() {
               logoutAdmin()
               setIsAdmin(false)
               setShowAdminPanel(false)
+              if (location.pathname.replace(/\/+$/, '') === '/admin') {
+                navigate('/')
+              }
             }}
           />
         </ModeTabBar>
@@ -2270,11 +2326,12 @@ function App() {
 
       {showAdminLogin && (
         <AdminLoginModal
-          onClose={() => setShowAdminLogin(false)}
+          onClose={closeAdminLogin}
           onSuccess={() => {
             setIsAdmin(true)
             setShowAdminLogin(false)
             setShowAdminPanel(true)
+            navigate('/admin')
           }}
         />
       )}
@@ -2307,8 +2364,13 @@ function App() {
           onSetStatus={handleSetCollectionStatus}
           onImportCsv={handleImportCollectionsCsv}
           onExportCsv={handleExportCollectionsCsv}
-          onClose={() => setShowAdminPanel(false)}
-          onLogout={() => setIsAdmin(false)}
+          onClose={closeAdminPanel}
+          onLogout={() => {
+            setIsAdmin(false)
+            if (location.pathname.replace(/\/+$/, '') === '/admin') {
+              navigate('/')
+            }
+          }}
         />
       )}
 

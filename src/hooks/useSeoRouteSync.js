@@ -4,6 +4,7 @@ import { buildPathFromAppState, parseSeoPath, resolveRouteTarget } from '../util
 
 /**
  * Syncs public SEO URLs with map app state.
+ * Pauses while admin UI is open or URL is /admin so login and dashboard are not disrupted.
  * @param {{
  *   visibleCollections: unknown[]
  *   mode: string
@@ -15,6 +16,7 @@ import { buildPathFromAppState, parseSeoPath, resolveRouteTarget } from '../util
  *   selectedPlace: Record<string, unknown> | null
  *   activeCollection: Record<string, unknown> | null
  *   isAdmin: boolean
+ *   adminUiActive: boolean
  * }} options
  */
 export function useSeoRouteSync({
@@ -28,67 +30,97 @@ export function useSeoRouteSync({
   selectedPlace,
   activeCollection,
   isAdmin,
+  adminUiActive,
 }) {
   const location = useLocation()
   const navigate = useNavigate()
-  const applyingUrlRef = useRef(false)
-  const readyRef = useRef(false)
+  const collectionsRef = useRef(visibleCollections)
+  const lastAppliedPathRef = useRef(null)
 
+  collectionsRef.current = visibleCollections
+
+  const seoSyncPaused = isAdmin || adminUiActive || parseSeoPath(location.pathname).kind === 'admin'
+
+  // URL → app state (pathname changes only; not on every collections refresh)
   useEffect(() => {
-    if (isAdmin) {
+    if (seoSyncPaused) {
       return
     }
+
     const parsed = parseSeoPath(location.pathname)
-    if (parsed.kind !== 'home' && visibleCollections.length === 0) {
+    if (parsed.kind === 'admin') {
       return
     }
-    const target = resolveRouteTarget(visibleCollections, parsed)
+
+    if (parsed.kind !== 'home' && collectionsRef.current.length === 0) {
+      return
+    }
+
+    if (lastAppliedPathRef.current === location.pathname) {
+      return
+    }
+
+    const target = resolveRouteTarget(collectionsRef.current, parsed)
     if (!target) {
       return
     }
-    applyingUrlRef.current = true
+
+    lastAppliedPathRef.current = location.pathname
     setMode(target.mode)
     setActiveCategory(target.activeCategory)
     setSelectedPlaceId(target.selectedPlaceId)
     setSelectedPlaceCollectionId(target.selectedPlaceCollectionId)
-    readyRef.current = true
-    applyingUrlRef.current = false
   }, [
-    isAdmin,
     location.pathname,
+    seoSyncPaused,
     setActiveCategory,
     setMode,
     setSelectedPlaceCollectionId,
     setSelectedPlaceId,
-    visibleCollections,
   ])
 
+  // app state → URL
   useEffect(() => {
-    if (isAdmin || applyingUrlRef.current) {
+    if (seoSyncPaused) {
       return
     }
-    if (!readyRef.current && parseSeoPath(location.pathname).kind !== 'home') {
+
+    const parsed = parseSeoPath(location.pathname)
+    if (parsed.kind === 'admin') {
       return
     }
-    readyRef.current = true
+
+    if (parsed.kind !== 'home' && collectionsRef.current.length === 0) {
+      return
+    }
+
     const nextPath = buildPathFromAppState({
       mode,
       activeCategory,
       selectedPlace,
       activeCollection,
-      visibleCollections,
+      visibleCollections: collectionsRef.current,
     })
-    if (nextPath !== location.pathname) {
-      navigate(nextPath, { replace: true })
+
+    if (nextPath === location.pathname) {
+      lastAppliedPathRef.current = location.pathname
+      return
     }
+
+    // Avoid redirect loops when the current URL is a valid public page we cannot resolve yet.
+    if (parsed.kind !== 'home' && !resolveRouteTarget(collectionsRef.current, parsed)) {
+      return
+    }
+
+    lastAppliedPathRef.current = nextPath
+    navigate(nextPath, { replace: true })
   }, [
     activeCategory,
     activeCollection,
-    isAdmin,
     location.pathname,
     mode,
     navigate,
     selectedPlace,
-    visibleCollections,
+    seoSyncPaused,
   ])
 }

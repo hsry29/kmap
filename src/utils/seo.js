@@ -20,6 +20,9 @@ export const DEFAULT_OG_IMAGE = `${SITE_URL}/favicon.svg`
  */
 export function parseSeoPath(pathname) {
   const path = String(pathname ?? '/').replace(/\/+$/, '') || '/'
+  if (path === '/admin') {
+    return { kind: 'admin' }
+  }
   if (path === '' || path === '/' || path === '/app') {
     return { kind: 'home' }
   }
@@ -142,6 +145,17 @@ export function resolveSeoMeta({
   imageUrl = null,
   visibleCollections = [],
 }) {
+  if (mode === 'admin') {
+    return {
+      title: 'Admin — KMap',
+      description: DEFAULT_DESCRIPTION,
+      canonical: `${SITE_URL}/admin`,
+      ogImage: DEFAULT_OG_IMAGE,
+      noindex: true,
+      pageType: 'admin',
+    }
+  }
+
   if (mode === 'places') {
     return {
       title: DEFAULT_TITLE,
