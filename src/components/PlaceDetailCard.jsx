@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { getFacilityPronunciation } from '../utils/pronunciation'
 import { resolveImageReferrerPolicy } from '../utils/placeImage'
 import { resolveCuratedPlaceImage } from '../utils/placeImageCatalog'
@@ -82,7 +83,8 @@ async function copyToClipboard(text) {
  *   isHiddenFromSearch?: boolean
  *   onToggleHideFromSearch?: () => void
  *   collectionInfo?: { title: string, type?: unknown, order?: number | null, total?: number | null }
- *   featuredCollections?: Array<{ title: string, type?: unknown, id?: string }>
+ *   collectionHref?: string
+ *   featuredCollections?: Array<{ title: string, type?: unknown, id?: string, href?: string }>
  *   onFeaturedCollectionSelect?: (collectionTitle: string) => void
  *   onShowDriver?: () => void
  *   onClose: () => void
@@ -94,6 +96,7 @@ export function PlaceDetailCard({
   themeDefaultImage = {},
   themeBadge = {},
   collectionInfo = null,
+  collectionHref = '',
   featuredCollections = [],
   onFeaturedCollectionSelect,
   isSaved,
@@ -339,7 +342,13 @@ export function PlaceDetailCard({
             <header className="pdc-header-block">
               {kind === 'planning' && collectionInfo?.title ? (
                 <div className="pdc-collection-banner">
-                  <p className="pdc-collection-banner-title">📍 {collectionInfo.title}</p>
+                  {collectionHref ? (
+                    <Link to={collectionHref} className="pdc-collection-banner-title pdc-collection-banner-link">
+                      📍 {collectionInfo.title}
+                    </Link>
+                  ) : (
+                    <p className="pdc-collection-banner-title">📍 {collectionInfo.title}</p>
+                  )}
                   <p className={`pdc-collection-type pdc-collection-type--${collectionTypeMeta.type}`}>
                     {collectionTypeMeta.icon} {collectionTypeMeta.shortLabel} Collection
                   </p>
@@ -427,20 +436,36 @@ export function PlaceDetailCard({
                 <ul className="pdc-featured-list">
                   {featuredCollections.map((collection) => {
                     const typeMeta = getCollectionTypeMeta(collection.type)
+                    const itemClass = 'pdc-featured-item'
+                    const inner = (
+                      <>
+                        <span
+                          className={`pdc-featured-type pdc-featured-type--${typeMeta.type}`}
+                        >
+                          {typeMeta.icon} {typeMeta.label}
+                        </span>
+                        <span className="pdc-featured-name">{collection.title}</span>
+                      </>
+                    )
                     return (
                       <li key={collection.id ?? collection.title}>
-                        <button
-                          type="button"
-                          className="pdc-featured-item"
-                          onClick={() => onFeaturedCollectionSelect?.(collection.title)}
-                        >
-                          <span
-                            className={`pdc-featured-type pdc-featured-type--${typeMeta.type}`}
+                        {collection.href ? (
+                          <Link
+                            to={collection.href}
+                            className={itemClass}
+                            onClick={() => onFeaturedCollectionSelect?.(collection.title)}
                           >
-                            {typeMeta.icon} {typeMeta.label}
-                          </span>
-                          <span className="pdc-featured-name">{collection.title}</span>
-                        </button>
+                            {inner}
+                          </Link>
+                        ) : (
+                          <button
+                            type="button"
+                            className={itemClass}
+                            onClick={() => onFeaturedCollectionSelect?.(collection.title)}
+                          >
+                            {inner}
+                          </button>
+                        )}
                       </li>
                     )
                   })}

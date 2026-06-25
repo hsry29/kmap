@@ -1,6 +1,17 @@
 {
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
   "rewrites": [
+    { "source": "/sitemap.xml", "destination": "/api/sitemap" },
     { "source": "/app", "destination": "/index.html" },
-    { "source": "/app.html", "destination": "/index.html" }
-  ]
+    { "source": "/app.html", "destination": "/index.html" },
+    { "source": "/routes/:slug", "destination": "/index.html" },
+    { "source": "/spots/:slug", "destination": "/index.html" },
+    { "source": "/place/:collectionSlug/:placeSlug", "destination": "/index.html" }
+  ],
+  "functions": {
+    "api/sitemap.js": {
+      "maxDuration": 10
+    }
+  }
 }

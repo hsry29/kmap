@@ -102,6 +102,15 @@ import {
 import { CurationEditModal } from './components/CurationEditModal.jsx'
 import { CurationPicker } from './components/CurationPicker.jsx'
 import { RouteItineraryPanel } from './components/RouteItineraryPanel.jsx'
+import { SeoHead } from './components/SeoHead.jsx'
+import { SeoBrowseNav } from './components/SeoBrowseNav.jsx'
+import { useSeoRouteSync } from './hooks/useSeoRouteSync.js'
+import { resolveSeoMeta } from './utils/seo.js'
+import {
+  enrichFeaturedCollections,
+  getCollectionPath,
+  getCollectionSlug,
+} from './utils/seoSlug.js'
 import { isSyncEnabled, subscribeRemoteConfig } from './utils/remoteSync'
 import {
   bootstrapContent,
@@ -538,6 +547,49 @@ function App() {
   }, [nearbyPlaces])
   /** 큐레이션 상세 카드(파트너 마커 클릭 우선, 그다음 테마 모드 선택) */
   const planningCardPlace = selectedPremiumPlace || (isGuideMode ? selectedPlace : null)
+
+  const seoPlace = planningCardPlace ?? selectedPlace
+  const seoImageUrl = useMemo(() => {
+    if (!seoPlace) {
+      return null
+    }
+    return resolveCuratedPlaceImage(seoPlace, imageCatalog)
+  }, [seoPlace, imageCatalog])
+
+  const seoMeta = useMemo(
+    () =>
+      resolveSeoMeta({
+        mode,
+        activeCollection,
+        selectedPlace: seoPlace,
+        imageUrl: seoImageUrl,
+        visibleCollections,
+      }),
+    [mode, activeCollection, seoPlace, seoImageUrl, visibleCollections],
+  )
+
+  useSeoRouteSync({
+    visibleCollections,
+    mode,
+    setMode,
+    activeCategory,
+    setActiveCategory,
+    selectedPlaceId,
+    setSelectedPlaceId,
+    selectedPlaceCollectionId,
+    setSelectedPlaceCollectionId,
+    selectedPlace: seoPlace,
+    activeCollection,
+    isAdmin,
+  })
+
+  const collectionSeoHref = useMemo(() => {
+    if (!activeCollection) {
+      return ''
+    }
+    const slug = getCollectionSlug(activeCollection, visibleCollections)
+    return getCollectionPath(activeCollection, slug)
+  }, [activeCollection, visibleCollections])
 
   const mapDisplayCenter =
     isGuideMode && selectedPlace
@@ -1620,6 +1672,8 @@ function App() {
 
   return (
     <main className="map-app">
+      <SeoHead meta={seoMeta} />
+      <SeoBrowseNav collections={visibleCollections} />
       <ContentStatusBanner
         bootstrap={contentBootstrap}
         emptyCollections={showEmptyPublishedCollections}
@@ -2122,6 +2176,7 @@ function App() {
             order: planningCardPlace._tourOrder ?? null,
             total: planningCardPlace._tourTotal ?? null,
           }}
+          collectionHref={collectionSeoHref}
           isSaved={myPlanIds.includes(planningCardPlace.id)}
           onToggleSave={() => toggleMyPlan(planningCardPlace.id)}
           onShowDriver={() => openDriverModal(planningCardPlace)}
@@ -2170,7 +2225,10 @@ function App() {
           key={`nearby-${selectedNearbyPlace.id}`}
           kind="nearby"
           place={selectedNearbyPlace}
-          featuredCollections={getFeaturedCollections(selectedNearbyPlace)}
+          featuredCollections={enrichFeaturedCollections(
+            getFeaturedCollections(selectedNearbyPlace),
+            visibleCollections,
+          )}
           onFeaturedCollectionSelect={(title) =>
             navigateToFeaturedCollection(title, selectedNearbyPlace)
           }
@@ -2191,7 +2249,10 @@ function App() {
           key={`search-${searchedPlace.id}`}
           kind="search"
           place={searchedPlace}
-          featuredCollections={getFeaturedCollections(searchedPlace)}
+          featuredCollections={enrichFeaturedCollections(
+            getFeaturedCollections(searchedPlace),
+            visibleCollections,
+          )}
           onFeaturedCollectionSelect={(title) =>
             navigateToFeaturedCollection(title, searchedPlace)
           }

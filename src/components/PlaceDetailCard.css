@@ -139,6 +139,15 @@
   color: #fff;
 }
 
+.pdc-collection-banner-link {
+  display: block;
+  text-decoration: none;
+}
+
+.pdc-collection-banner-link:hover {
+  text-decoration: underline;
+}
+
 .pdc-collection-banner .pdc-collection-type {
   margin: 0;
   text-transform: none;
@@ -328,13 +337,17 @@
   align-items: center;
   gap: 0.55rem;
   padding: 0.55rem 0.65rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.10);
   border-radius: 0.65rem;
   background: rgba(255, 255, 255, 0.04);
   color: #fff;
   cursor: pointer;
   text-align: left;
   transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+a.pdc-featured-item {
+  text-decoration: none;
 }
 
 .pdc-featured-item:hover {

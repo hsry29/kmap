@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "sitemap:preview": "node scripts/generate-sitemap.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "fetch:places": "node scripts/fetch-kakao-places.mjs",
@@ -17,7 +18,9 @@
     "hangul-romanization": "^1.0.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
-    "react-kakao-maps-sdk": "^1.2.1"
+    "react-helmet-async": "^3.0.0",
+    "react-kakao-maps-sdk": "^1.2.1",
+    "react-router-dom": "^7.18.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
