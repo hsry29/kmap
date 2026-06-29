@@ -227,7 +227,10 @@ export function PlaceDetailCard({
 
   const [heroSrc, setHeroSrc] = useState(model.image)
 
-  const noImageUrl = useMemo(() => getStoragePublicUrl(NO_IMAGE_FILE), [])
+  const noImageUrl = useMemo(
+    () => getStoragePublicUrl(NO_IMAGE_FILE, imageCatalog.fileIndex),
+    [imageCatalog.fileIndex, imageCatalog.ready],
+  )
   const isNoImageHero = model.isNoImage || (Boolean(noImageUrl) && heroSrc === noImageUrl)
 
   useEffect(() => {
@@ -317,8 +320,9 @@ export function PlaceDetailCard({
                 referrerPolicy={resolveImageReferrerPolicy(heroSrc)}
                 onError={() => {
                   if (kind === 'planning') {
-                    if (noImageUrl && heroSrc !== noImageUrl) {
-                      setHeroSrc(noImageUrl)
+                    const fallback = getStoragePublicUrl(NO_IMAGE_FILE, imageCatalog.fileIndex)
+                    if (fallback && heroSrc !== fallback) {
+                      setHeroSrc(fallback)
                       return
                     }
                   }

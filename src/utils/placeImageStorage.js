@@ -4,11 +4,51 @@ import { normalizeImageKey } from './placeImageKeys'
 export const KMAP_IMAGES_BUCKET = 'kmapimages'
 export const NO_IMAGE_FILE = 'No_Image.jpg'
 
+/**
+ * Preferred Storage image version. When set to 2, `Photo_v2.jpg` is used if present;
+ * otherwise falls back to `Photo.jpg`. Change to 3 for `_v3`, etc.
+ */
+export const KMAP_IMAGE_STORAGE_VERSION = 2
+
 const IMAGE_FILE_RE = /\.(jpe?g|png|webp)$/i
 
-/** @param {string} fileName */
-export function getStoragePublicUrl(fileName) {
-  const name = String(fileName ?? '').trim()
+/** @type {Map<string, string> | null} */
+let storageFileIndex = null
+
+/**
+ * Pick the highest available `_vN` file in Storage, else the original filename.
+ * @param {Map<string, string> | null | undefined} fileIndex
+ * @param {string} fileName
+ */
+export function resolveStorageFileName(fileIndex, fileName) {
+  const base = String(fileName ?? '').trim()
+  if (!base || !fileIndex || KMAP_IMAGE_STORAGE_VERSION < 2) {
+    return base
+  }
+
+  for (let version = KMAP_IMAGE_STORAGE_VERSION; version >= 2; version -= 1) {
+    const candidate = buildVersionedStorageFileName(base, version)
+    if (fileIndex.has(normalizeImageKey(candidate))) {
+      return fileIndex.get(normalizeImageKey(candidate)) ?? candidate
+    }
+  }
+
+  return base
+}
+
+/** @param {string} fileName @param {number} version */
+function buildVersionedStorageFileName(fileName, version) {
+  const match = String(fileName).match(/^(.+?)(\.(jpe?g|png|webp))$/i)
+  if (!match) {
+    return fileName
+  }
+  const baseStem = match[1].replace(/_v\d+$/i, '')
+  return `${baseStem}_v${version}${match[2]}`
+}
+
+/** @param {string} fileName @param {Map<string, string> | null} [fileIndex] */
+export function getStoragePublicUrl(fileName, fileIndex = storageFileIndex) {
+  const name = resolveStorageFileName(fileIndex, String(fileName ?? '').trim())
   if (!name) {
     return ''
   }
@@ -41,6 +81,7 @@ export function buildStorageFileIndex(fileNames) {
       index.set(key, name)
     }
   }
+  storageFileIndex = index
   return index
 }
 

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { isAdminEnabled, loginAdmin } from '../utils/adminAuth'
+import { isAdminEnabled, loginAdmin, getAdminNotConfiguredMessage } from '../utils/adminAuth'
 import './AdminLoginModal.css'
 
 /**
@@ -12,7 +12,7 @@ export function AdminLoginModal({ onClose, onSuccess }) {
   const handleSubmit = (event) => {
     event.preventDefault()
     if (!isAdminEnabled()) {
-      setError('Set VITE_ADMIN_PASSWORD in .env and restart the dev server.')
+      setError(getAdminNotConfiguredMessage())
       return
     }
     const result = loginAdmin(password)

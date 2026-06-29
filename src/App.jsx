@@ -33,7 +33,7 @@ import { ContentStatusBanner } from './components/ContentStatusBanner.jsx'
 import { RouteColorPin } from './components/RouteColorPin.jsx'
 import { RouteClusterPicker } from './components/RouteClusterPicker.jsx'
 import { TourOrderPin } from './components/TourOrderPin.jsx'
-import { isAdminEnabled, isAdminLoggedIn, logoutAdmin } from './utils/adminAuth'
+import { isAdminEnabled, isAdminLoggedIn, logoutAdmin, getAdminNotConfiguredMessage } from './utils/adminAuth'
 import {
   addAdminHiddenPlace,
   filterVisibleSearchPlaces,
@@ -1234,7 +1234,7 @@ function App() {
       return
     }
     if (!isAdminEnabled()) {
-      window.alert('Admin is not configured. Add VITE_ADMIN_PASSWORD to .env and restart the dev server.')
+      window.alert(getAdminNotConfiguredMessage())
       return
     }
     navigate('/admin')

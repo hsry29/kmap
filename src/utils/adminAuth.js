@@ -42,3 +42,11 @@ export function logoutAdmin() {
     /* ignore */
   }
 }
+
+/** User-facing message when admin password env is missing. */
+export function getAdminNotConfiguredMessage() {
+  if (import.meta.env.DEV) {
+    return 'Admin is not configured. Add VITE_ADMIN_PASSWORD to .env and restart the dev server.'
+  }
+  return 'Admin is not configured on this deployment. Add VITE_ADMIN_PASSWORD in Vercel → Settings → Environment Variables, then redeploy.'
+}
