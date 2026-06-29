@@ -3,6 +3,7 @@ import {
   MEDICAL_DEPARTMENT_PAIRS,
   normalizePlaceEnglishSpacing,
 } from './categoryLexicon'
+import { CONVENIENCE_STORE_BRAND_PAIRS } from './convenienceBrandLexicon'
 import { KOREAN_FOOD_NAME_PAIRS } from './koreanFoodLexicon'
 import { applyLodgingTypePatches, LODGING_TYPE_PAIRS } from './lodgingTypeLexicon'
 
@@ -113,6 +114,7 @@ const LOCATION_TOKENS = [
 
 /** 브랜드·체인 — 자연스러운 영문 브랜드명 */
 const BRAND_TOKENS = [
+  ...CONVENIENCE_STORE_BRAND_PAIRS,
   ['광화문국밥', 'Gwanghwamun Gukbap'],
   ['세종한우', 'Sejong Hanwoo'],
   ['교동면옥', 'Gyodong Naengmyeon'],

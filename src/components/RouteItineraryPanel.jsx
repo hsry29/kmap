@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { resolveCuration } from '../utils/adminCuration'
 import { resolveCuratedPlaceImage } from '../utils/placeImageCatalog'
 import { usePlaceImageCatalog } from '../utils/usePlaceImageCatalog'
+import { getPlaceDisplayTitle } from '../utils/placeDisplay'
 import { RouteColorIndicator } from './RouteColorIndicator'
 import './RouteItineraryPanel.css'
 
@@ -36,7 +37,7 @@ function formatStopSummary(curation) {
 }
 
 function resolvePlaceTitle(place) {
-  return String(place.enName || place.name || '').trim()
+  return getPlaceDisplayTitle(place, 'planning')
 }
 
 function resolvePlaceKoName(place) {

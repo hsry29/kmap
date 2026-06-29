@@ -1,4 +1,5 @@
 import { getNearbyTabDensityBoost } from '../data/nearbyLiveTypes'
+import { normalizeLiveKakaoPlace } from './placeDisplay'
 
 /** Kakao category/keyword search: page size (API max 15). */
 const PAGE_SIZE = 15
@@ -412,7 +413,7 @@ export function fetchNearbyKeywordPlaces(kakaoMap, ps, keyword, ctx) {
 
 /** @param {Record<string, unknown>} row @param {number} index */
 export function mapKakaoNearbyRow(row, index) {
-  return {
+  return normalizeLiveKakaoPlace({
     id: `nearby-${row.id}-${index}`,
     kakaoPlaceId: String(row.id),
     kakaoId: String(row.id),
@@ -425,5 +426,5 @@ export function mapKakaoNearbyRow(row, index) {
     phone: row.phone || '',
     placeUrl: row.place_url || '',
     categoryName: row.category_name || '',
-  }
+  })
 }

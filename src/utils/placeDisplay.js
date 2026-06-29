@@ -5,6 +5,14 @@ import {
   NAME_EN_TOKENS_EXTRA,
   normalizePlaceEnglishSpacing,
 } from './categoryLexicon'
+import {
+  CONVENIENCE_STORE_BRAND_PATTERN,
+  extractKoreanPlaceName,
+  isConvenienceStoreContext,
+  looksLikeRomanizedConvenienceBrand,
+  normalizeConvenienceBrandEnglish,
+  normalizeKoreanStoreName,
+} from './convenienceBrandLexicon'
 import { translateCategorySemantic } from './categoryTranslate'
 import { KOREAN_FOOD_NAME_MAP } from './koreanFoodLexicon'
 import { INTERNATIONAL_FOOD_MAP } from './internationalFoodLexicon'
@@ -67,7 +75,7 @@ const KNOWN_NAME_EN_TOKENS = [
 ].sort((a, b) => b[0].length - a[0].length)
 
 function toSemanticEnglishName(name) {
-  const raw = String(name ?? '').trim()
+  const raw = normalizeKoreanStoreName(String(name ?? '').trim())
   if (!raw || !containsHangul(raw)) {
     return ''
   }
@@ -80,13 +88,163 @@ function toSemanticEnglishName(name) {
   }
   prepared = prepared.replace(/\s+/g, ' ').trim()
   const semantic = buildSemanticDisplayName(prepared)
-  if (semantic && /[A-Za-z]/.test(semantic)) {
-    return semantic
+  const candidate = semantic && /[A-Za-z]/.test(semantic) ? semantic : ''
+  if (candidate) {
+    return normalizeConvenienceBrandEnglish(candidate)
   }
   if (/[A-Za-z]/.test(prepared)) {
-    return normalizePlaceEnglishSpacing(applyCategoryLexiconPatches(prepared))
+    return normalizeConvenienceBrandEnglish(
+      normalizePlaceEnglishSpacing(applyCategoryLexiconPatches(prepared)),
+    )
   }
   return ''
+}
+
+/**
+ * Single English title builder for live POIs and curated places.
+ * Input must be a Korean store/place name (Hangul); never pass category or image metadata.
+ * @param {string} koreanName
+ */
+export function buildEnglishPlaceTitle(koreanName) {
+  const ko = normalizeKoreanStoreName(String(koreanName ?? '').trim())
+  if (!ko) {
+    return ''
+  }
+  if (containsHangul(ko)) {
+    return toSemanticEnglishName(ko)
+  }
+  return normalizeConvenienceBrandEnglish(ko)
+}
+
+/** @param {string} en @param {string} ko @param {Record<string, unknown>} place */
+function isStaleEnglishTitle(en, ko, place) {
+  const english = String(en ?? '').trim()
+  const korean = String(ko ?? '').trim()
+  if (!english) {
+    return true
+  }
+  if (containsHangul(english)) {
+    return true
+  }
+  if (looksLikeRomanizedConvenienceBrand(english)) {
+    return true
+  }
+  if (!isConvenienceStoreContext(place, korean)) {
+    return false
+  }
+  const normalized = normalizeConvenienceBrandEnglish(english)
+  if (/^(7-Eleven|CU|GS25|emart24|MINISTOP)\b/i.test(normalized)) {
+    return false
+  }
+  // e.g. "New Wave" while Korean is "세븐일레븐 명동점"
+  return Boolean(korean && containsHangul(korean))
+}
+
+/** @param {Record<string, unknown>} place @param {'planning' | 'nearby' | 'search'} kind */
+function resolveKoreanNameSource(place, kind) {
+  if (kind === 'planning') {
+    const koExtra = String(place.koName ?? place.koPlaceName ?? '').trim()
+    if (koExtra) {
+      return normalizeKoreanStoreName(koExtra)
+    }
+    const en = String(place.enName ?? '').trim()
+    if (containsHangul(en)) {
+      return normalizeKoreanStoreName(en)
+    }
+    const fromName = extractKoreanPlaceName(String(place.name ?? place.placeName ?? '').trim())
+    return fromName || normalizeKoreanStoreName(String(place.name ?? place.placeName ?? '').trim())
+  }
+
+  // Live Kakao POIs: Korean store name only — never enName / image_assets.place_name.
+  const fields = [place.koName, place.name, place.placeName]
+  for (const field of fields) {
+    const korean = extractKoreanPlaceName(String(field ?? '').trim())
+    if (korean) {
+      return korean
+    }
+  }
+  for (const field of fields) {
+    const raw = normalizeKoreanStoreName(String(field ?? '').trim())
+    if (raw && containsHangul(raw)) {
+      return raw
+    }
+  }
+  return ''
+}
+
+/** @param {string} curatedEn @param {string} koreanName @param {Record<string, unknown>} place */
+function resolvePlanningEnglishTitle(curatedEn, koreanName, place) {
+  const ko = String(koreanName ?? '').trim()
+  if (isStaleEnglishTitle(curatedEn, ko, place)) {
+    const generated = buildEnglishPlaceTitle(ko)
+    if (generated) {
+      return generated
+    }
+  }
+  const en = String(curatedEn ?? '').trim()
+  if (en && !containsHangul(en)) {
+    return normalizeConvenienceBrandEnglish(en)
+  }
+  return buildEnglishPlaceTitle(ko)
+}
+
+/**
+ * Strip stale English / image metadata from Kakao POI records at ingest.
+ * @param {Record<string, unknown>} record
+ */
+export function normalizeLiveKakaoPlace(record) {
+  const src = record && typeof record === 'object' ? record : {}
+  const rawName = String(src.name ?? src.place_name ?? '').trim()
+  const categoryName = String(src.categoryName ?? src.category_name ?? src.category ?? '').trim()
+  const koreanName =
+    extractKoreanPlaceName(String(src.koName ?? '').trim()) ||
+    extractKoreanPlaceName(rawName) ||
+    (containsHangul(rawName) ? normalizeKoreanStoreName(rawName) : '')
+
+  const { enName: _dropEn, place_name: _dropPlaceName, ...rest } = src
+  return {
+    ...rest,
+    ...(categoryName ? { categoryName } : {}),
+    ...(koreanName
+      ? { name: koreanName, koName: koreanName }
+      : rawName
+        ? { name: rawName }
+        : {}),
+  }
+}
+
+/**
+ * Card/list display model — single source for visible titles.
+ * @param {Record<string, unknown>} place
+ * @param {'planning' | 'nearby' | 'search'} kind
+ */
+export function resolvePlaceDisplayModel(place, kind) {
+  const { nameKo, nameEn, subwayLines, isSubway } = resolveDisplayNames(place, kind)
+  const convenience = isConvenienceStoreContext(place, nameKo)
+  let englishTitle = nameEn
+  if ((!englishTitle || isStaleEnglishTitle(englishTitle, nameKo, place)) && nameKo) {
+    englishTitle = buildEnglishPlaceTitle(nameKo) || englishTitle
+  }
+  const primaryTitle = englishTitle || nameKo || 'Place'
+  const showKoreanSubtitle = Boolean(nameKo && englishTitle && nameKo !== englishTitle)
+  return {
+    nameKo,
+    nameEn: englishTitle,
+    primaryTitle,
+    showKoreanSubtitle,
+    subwayLines,
+    isSubway,
+    isConvenience: convenience,
+  }
+}
+
+/**
+ * Primary display label for lists (English preferred, Korean fallback).
+ * @param {Record<string, unknown>} place
+ * @param {'planning' | 'nearby' | 'search'} kind
+ */
+export function getPlaceDisplayTitle(place, kind) {
+  return resolvePlaceDisplayModel(place, kind).primaryTitle
 }
 
 const CATEGORY_TERM_EN = {
@@ -323,8 +481,6 @@ const ROMANIZED_CATEGORY_HINTS = [
   { pattern: /\bgyo\s*yuk\s*,?\s*hak\s*mun\b/i, label: 'Education, Academics' },
 ]
 
-const CONVENIENCE_STORE_BRAND_PATTERN =
-  /(편의점|세븐일레븐|seven\s*eleven|se\s*beun\s*il\s*re\s*beun|\bcu\b|씨유|\bgs\s*25\b|지에스25|emart\s*24|이마트24|ministop|미니스톱)/i
 const MARKET_BRAND_PATTERN =
   /(더프레시|deo\s*peu\s*re\s*si|롯데슈퍼프레시|rot\s*de\s*syu\s*peo\s*peo?\s*re\s*si|롯데슈퍼|lotte\s*super|gs\s*the\s*fresh|homeplus|홈플러스|하나로마트|hanaro\s*mart)/i
 const BRAND_STORE_PATTERN =
@@ -595,14 +751,6 @@ export function buildDriverModalPlace(place) {
  * @param {'planning' | 'nearby' | 'search'} kind
  */
 export function resolveDisplayNames(place, kind) {
-  if (kind === 'planning') {
-    const en = String(place.enName ?? '').trim()
-    const koExtra = String(place.koName ?? place.koPlaceName ?? '').trim()
-    const enHasHangul = containsHangul(en)
-    const nameKo = koExtra || (enHasHangul ? en : '')
-    const nameEn = enHasHangul ? '' : en
-    return { nameKo, nameEn }
-  }
   const subwayDisplay = resolveSubwayStationDisplay(place)
   if (subwayDisplay) {
     return {
@@ -613,28 +761,29 @@ export function resolveDisplayNames(place, kind) {
     }
   }
 
-  const rawName = String(place.name ?? '').trim()
-  if (!rawName) {
+  const nameKo = resolveKoreanNameSource(place, kind)
+  if (!nameKo) {
+    const latinOnly = normalizeConvenienceBrandEnglish(
+      String(place.name ?? place.enName ?? '').trim(),
+    )
+    if (latinOnly && !containsHangul(latinOnly)) {
+      return {
+        nameKo: '',
+        nameEn: latinOnly,
+        subwayLines: [],
+        isSubway: false,
+      }
+    }
     return { nameKo: '', nameEn: '', subwayLines: [], isSubway: false }
   }
-  if (containsHangul(rawName) && /[A-Za-z]{2,}/.test(rawName)) {
-    const ko = rawName.replace(/[A-Za-z0-9@._\-\s]+/g, ' ').replace(/\s+/g, ' ').trim()
-    const en = rawName.replace(/[\uAC00-\uD7AF]+/g, ' ').replace(/\s+/g, ' ').trim()
-    return {
-      nameKo: containsHangul(ko) ? ko : rawName,
-      nameEn: en.length >= 2 ? en : '',
-      subwayLines: [],
-      isSubway: false,
-    }
+
+  if (kind === 'planning') {
+    const nameEn = resolvePlanningEnglishTitle(place.enName, nameKo, place)
+    return { nameKo, nameEn, subwayLines: [], isSubway: false }
   }
-  if (containsHangul(rawName)) {
-    const semanticEnglish = toSemanticEnglishName(rawName)
-    if (semanticEnglish) {
-      return { nameKo: rawName, nameEn: semanticEnglish, subwayLines: [], isSubway: false }
-    }
-    return { nameKo: rawName, nameEn: '', subwayLines: [], isSubway: false }
-  }
-  return { nameKo: '', nameEn: rawName, subwayLines: [], isSubway: false }
+
+  const nameEn = buildEnglishPlaceTitle(nameKo)
+  return { nameKo, nameEn, subwayLines: [], isSubway: false }
 }
 
 /**

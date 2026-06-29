@@ -127,6 +127,8 @@ import { enrichDriverModalPlace } from './utils/kakaoDriverAddress'
 import {
   buildDriverModalPlace,
   hasDriverStreetAddress,
+  getPlaceDisplayTitle,
+  normalizeLiveKakaoPlace,
   resolveDisplayNames,
   resolveDriverKoAddress,
 } from './utils/placeDisplay'
@@ -192,7 +194,7 @@ const NON_COFFEE_CAFE_PATTERN =
 function parseKakaoPlaceRow(place, index, centerPosition) {
   const lat = Number(place.y)
   const lng = Number(place.x)
-  return {
+  return normalizeLiveKakaoPlace({
     id: `search-${place.id}-${index}`,
     kakaoPlaceId: String(place.id),
     kakaoId: String(place.id),
@@ -205,7 +207,7 @@ function parseKakaoPlaceRow(place, index, centerPosition) {
     phone: place.phone || '',
     categoryName: place.category_name || '',
     distanceKm: distanceInKm(centerPosition, { lat, lng }),
-  }
+  })
 }
 
 function isNearUserOrInMapBounds(place, bounds, userPosition, radiusKm) {
@@ -1329,10 +1331,16 @@ function App() {
         return
       }
       suppressMapFocusRef.current = true
-      activateCollectionForPlace(collectionOption.place, collectionOption.title)
+      if (mode === 'explore') {
+        // All Spots: open spot detail without narrowing the map filter.
+        selectPlanningPlace(collectionOption.place)
+      } else {
+        // All Routes: activate the chosen route and show its pins only.
+        activateCollectionForPlace(collectionOption.place, collectionOption.title)
+      }
       setOverlapClusterPick(null)
     },
-    [activateCollectionForPlace],
+    [mode, activateCollectionForPlace, selectPlanningPlace],
   )
 
   const handleCollectionPick = (collectionTitle) => {
@@ -1433,17 +1441,7 @@ function App() {
       const first = filtered[0]
       setLiveKeywordSearchActive(true)
       setSearchResults(filtered)
-      setSearchedPlace({
-        id: first.id,
-        lat: first.lat,
-        lng: first.lng,
-        name: first.name,
-        address: first.address,
-        phone: first.phone,
-        categoryName: first.categoryName || '',
-        roadAddress: first.roadAddress || '',
-        jibunAddress: first.jibunAddress || '',
-      })
+      setSearchedPlace(first)
       setSearchDetailOpen(false)
       lastKeywordSearchCenterRef.current = centerPosition
       setSearchAreaStale(false)
@@ -1527,17 +1525,7 @@ function App() {
           setCuratedSearchResults([])
           setLiveKeywordSearchActive(true)
           setSearchResults(parsedResults)
-          setSearchedPlace({
-            id: first.id,
-            lat: first.lat,
-            lng: first.lng,
-            name: first.name,
-            address: first.address,
-            phone: first.phone,
-            categoryName: first.categoryName || '',
-            roadAddress: first.roadAddress || '',
-            jibunAddress: first.jibunAddress || '',
-          })
+          setSearchedPlace(first)
           setSearchDetailOpen(false)
           setSelectedPlaceId(null)
           setSelectedNearbyId(null)
@@ -1775,7 +1763,7 @@ function App() {
               >
                 <RouteColorPin
                   color={place._collectionColor}
-                  label={`${place._collectionTitle}: ${place.enName || place.koName || place.name}`}
+                  label={`${place._collectionTitle}: ${getPlaceDisplayTitle(place, 'planning')}`}
                   selected={
                     selectedPlaceId === place.id &&
                     (activeCategory !== 'All' ||
@@ -1798,7 +1786,7 @@ function App() {
               >
                 <RouteColorPin
                   color={place._collectionColor}
-                  label={`${place._collectionTitle}: ${place.enName || place.koName || place.name}`}
+                  label={`${place._collectionTitle}: ${getPlaceDisplayTitle(place, 'planning')}`}
                   selected={selectedPlaceId === place.id}
                   onClick={() => handleSelectPlace(place)}
                 />
@@ -1817,7 +1805,7 @@ function App() {
               >
                 <RouteColorPin
                   color={place._collectionColor}
-                  label={`${place._collectionTitle}: ${place.enName || place.koName || place.name}`}
+                  label={`${place._collectionTitle}: ${getPlaceDisplayTitle(place, 'planning')}`}
                   selected={
                     selectedPlaceId === place.id &&
                     (activeCategory !== 'All' ||
@@ -1862,7 +1850,7 @@ function App() {
                 <TourOrderPin
                   order={place._tourOrder ?? 0}
                   pinId={place._pin}
-                  label={place.enName || place.koName || place.name}
+                  label={getPlaceDisplayTitle(place, 'planning')}
                   selected={selectedPlaceId === place.id}
                   onClick={() => handleSelectPlace(place)}
                 />
@@ -1870,7 +1858,9 @@ function App() {
             ))}
 
           {/* 제휴(파트너) 매장: 숨김 목록 제외, 필터/모드와 무관하게 노출. 최상단(zIndex) + 황금 펄스. */}
-          {visiblePremiumPlaces.map((place) => (
+          {visiblePremiumPlaces.map((place) => {
+            const partnerTitle = getPlaceDisplayTitle(place, 'planning')
+            return (
               <CustomOverlayMap
                 key={`premium-${place.id}`}
                 position={{ lat: place.lat, lng: place.lng }}
@@ -1883,8 +1873,8 @@ function App() {
                   type="button"
                   className="premium-pin"
                   onClick={() => handleSelectPremium(place)}
-                  title={`${place.enName || place.koName || 'Partner store'} · Partner`}
-                  aria-label={`${place.enName || place.koName || 'Partner store'}, partner store`}
+                  title={`${partnerTitle} · Partner`}
+                  aria-label={`${partnerTitle}, partner store`}
                 >
                   <span className="premium-pin-badge">Partner</span>
                   <span className="premium-pin-marker" aria-hidden>
@@ -1892,7 +1882,8 @@ function App() {
                   </span>
                 </button>
               </CustomOverlayMap>
-            ))}
+            )
+          })}
 
           {mode === 'places' && userPosition && (
             <>
@@ -2142,7 +2133,7 @@ function App() {
             <h3>{regionQuery.trim()} · KMap spots</h3>
             <div className="search-results-list">
               {curatedSearchResults.map((place) => {
-                const displayName = place.enName || place.place_name || place.koName || 'Place'
+                const displayName = getPlaceDisplayTitle(place, 'planning')
                 const collectionTitle = place._collectionTitle || place.category || ''
                 return (
                   <button
@@ -2181,7 +2172,7 @@ function App() {
                   place,
                   'search',
                 )
-                const displayName = nameEn || nameKo || place.name
+                const displayName = getPlaceDisplayTitle(place, 'search')
                 const pronunciation =
                   nameKo && !isSubway
                     ? getFacilityPronunciation({ ...place, name: nameKo, koName: nameKo })?.text

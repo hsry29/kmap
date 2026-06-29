@@ -301,8 +301,13 @@ export function applyCategoryLexiconPatches(text) {
   return normalizePlaceEnglishSpacing(out)
 }
 
+/** 글로벌 편의점 브랜드 — 로마자 표기 금지 (긴 항목 우선) */
+export { CONVENIENCE_STORE_BRAND_PAIRS } from './convenienceBrandLexicon.js'
+import { CONVENIENCE_STORE_BRAND_PAIRS } from './convenienceBrandLexicon.js'
+
 /** 가게명에 자주 섞이는 영어·업종 단어 (긴 항목 우선 적용) */
 export const NAME_EN_TOKENS_EXTRA = [
+  ...CONVENIENCE_STORE_BRAND_PAIRS,
   ...MEDICAL_DEPARTMENT_PAIRS,
   ['러스크요양병원', 'Rusk Nursing Hospital'],
   ['러스크', 'Rusk'],

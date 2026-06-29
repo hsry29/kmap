@@ -7,7 +7,7 @@ import { getStoragePublicUrl, NO_IMAGE_FILE } from '../utils/placeImageStorage'
 import { usePlaceImageCatalog } from '../utils/usePlaceImageCatalog'
 import {
   resolveCategoryLabel,
-  resolveDisplayNames,
+  resolvePlaceDisplayModel,
   resolveDriverKoAddress,
   resolveFloorLabel,
 } from '../utils/placeDisplay'
@@ -131,11 +131,16 @@ export function PlaceDetailCard({
   const model = useMemo(() => {
     const lat = Number(place.lat)
     const lng = Number(place.lng)
-    const { nameKo, nameEn, subwayLines = [], isSubway = false } = resolveDisplayNames(place, kind)
-    const pronunciation = nameKo && !isSubway
-      ? getFacilityPronunciation({ ...place, name: nameKo, koName: nameKo })?.text ?? ''
-      : ''
-    const showSpokenAsTitle = Boolean(nameKo && !nameEn && pronunciation)
+    const display = resolvePlaceDisplayModel(place, kind)
+    const { nameKo, nameEn, primaryTitle, showKoreanSubtitle, subwayLines, isSubway, isConvenience } =
+      display
+    const pronunciation =
+      nameKo && !isSubway && !isConvenience
+        ? getFacilityPronunciation({ ...place, name: nameKo, koName: nameKo })?.text ?? ''
+        : ''
+    const showSpokenAsTitle = Boolean(
+      nameKo && !nameEn && !isConvenience && pronunciation && !isSubway,
+    )
     const categoryLabel = resolveCategoryLabel(place, kind, themeBadge)
     const floorLabel = resolveFloorLabel(place, kind)
 
@@ -167,6 +172,8 @@ export function PlaceDetailCard({
       return {
         nameKo,
         nameEn,
+        primaryTitle,
+        showKoreanSubtitle,
         pronunciation,
         showSpokenAsTitle,
         isSubway,
@@ -178,7 +185,7 @@ export function PlaceDetailCard({
         memo: memoParts.join('\n\n'),
         lat,
         lng,
-        mapName: nameKo || nameEn || String(place.enName ?? ''),
+        mapName: nameKo || nameEn || '',
         hasDriver: Boolean(driverLine && onShowDriver),
         imageCreditAsset: curatedImage?.isNoImage ? null : curatedImage?.asset ?? null,
         isNoImage: curatedImage?.isNoImage ?? false,
@@ -195,6 +202,8 @@ export function PlaceDetailCard({
     return {
       nameKo,
       nameEn,
+      primaryTitle,
+      showKoreanSubtitle,
       pronunciation,
       showSpokenAsTitle,
       isSubway,
@@ -206,7 +215,7 @@ export function PlaceDetailCard({
       memo: memoParts.join('\n\n') || 'Place found via Kakao map search.',
       lat,
       lng,
-      mapName: nameKo || nameEn || String(place.name ?? ''),
+      mapName: nameKo || nameEn || '',
       hasDriver: Boolean(driverLine && onShowDriver),
     }
   }, [kind, place, onShowDriver, themeBadge, curatedImage])
@@ -367,12 +376,12 @@ export function PlaceDetailCard({
                 <span className="pdc-partner-badge">🔥 Partner</span>
               ) : null}
               <div className="pdc-names-simple" role="group" aria-label="Place name">
-                {model.nameEn ? (
+                {model.primaryTitle && !model.showSpokenAsTitle ? (
                   <h2 id="pdc-place-title" className="pdc-name-primary">
-                    {model.nameEn}
+                    {model.primaryTitle}
                   </h2>
                 ) : null}
-                {model.nameKo && model.nameEn ? (
+                {model.showKoreanSubtitle ? (
                   <button
                     type="button"
                     className={`pdc-name-sub${copyFlash === 'ko' ? ' pdc-name-sub--flash' : ''}`}
@@ -390,7 +399,7 @@ export function PlaceDetailCard({
                     ))}
                   </div>
                 ) : null}
-                {model.nameEn && model.pronunciation && !model.isSubway ? (
+                {model.nameEn && model.pronunciation && !model.isSubway && !model.showSpokenAsTitle ? (
                   <p className="pdc-pronunciation">Pronunciation: {model.pronunciation}</p>
                 ) : null}
                 {model.showSpokenAsTitle ? (
@@ -407,7 +416,7 @@ export function PlaceDetailCard({
                     </button>
                   </>
                 ) : null}
-                {model.nameKo && !model.nameEn && !model.showSpokenAsTitle ? (
+                {model.nameKo && !model.primaryTitle && !model.showSpokenAsTitle ? (
                   <button
                     type="button"
                     className={`pdc-name-primary pdc-name-primary--copy${copyFlash === 'ko' ? ' pdc-name-sub--flash' : ''}`}
@@ -417,7 +426,7 @@ export function PlaceDetailCard({
                     {model.nameKo}
                   </button>
                 ) : null}
-                {!model.nameKo && !model.nameEn ? (
+                {!model.nameKo && !model.primaryTitle ? (
                   <p id="pdc-place-title" className="pdc-name-primary pdc-name-primary--empty">
                     —
                   </p>
