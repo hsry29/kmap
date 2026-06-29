@@ -1,13 +1,22 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   createImageAsset,
   deleteImageAsset,
   fetchAllImageAssets,
   imageAssetRowKey,
+  importImageAssetsCsvRows,
   updateImageAsset,
 } from '../utils/imageAssets'
+import {
+  downloadCsvFile,
+  imageAssetsCsvTemplate,
+  imageAssetsExportFilename,
+  imageAssetsToCsv,
+  validateImageAssetsCsvImport,
+} from '../utils/imageAssetsCsv'
 import { refreshPlaceImageCatalog } from '../utils/placeImageCatalog'
 import { isSyncEnabled } from '../utils/supabaseClient'
+import { ImageAssetsCsvImportModal } from './ImageAssetsCsvImportModal.jsx'
 import './ImageAssetsManager.css'
 
 const EMPTY_FORM = {
@@ -29,6 +38,9 @@ export function ImageAssetsManager({ onChanged }) {
   /** @type {[import('../utils/imageAssets').ImageAssetRow | null, Function]} */
   const [editingOriginal, setEditingOriginal] = useState(null)
   const [flash, setFlash] = useState('')
+  const [importValidation, setImportValidation] = useState(null)
+  const [importFlash, setImportFlash] = useState('')
+  const importInputRef = useRef(null)
 
   const loadRows = useCallback(async () => {
     if (!isSyncEnabled) {
@@ -67,7 +79,7 @@ export function ImageAssetsManager({ onChanged }) {
         setFlash('Updated metadata')
       } else {
         await createImageAsset(form)
-        setFlash('Added metadata')
+        setFlash('Saved metadata (upserted by place)')
       }
       await refreshPlaceImageCatalog()
       onChanged?.()
@@ -109,22 +121,84 @@ export function ImageAssetsManager({ onChanged }) {
     }
   }
 
+  const handleExportCsv = () => {
+    downloadCsvFile(imageAssetsToCsv(rows), imageAssetsExportFilename())
+  }
+
+  const handleDownloadTemplate = () => {
+    downloadCsvFile(imageAssetsCsvTemplate(), 'kmap-image_assets-template.csv')
+  }
+
+  const handleImportFile = async (event) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) {
+      return
+    }
+    setImportFlash('')
+    try {
+      const text = await file.text()
+      const existing = rows.length ? rows : await fetchAllImageAssets()
+      setImportValidation(validateImageAssetsCsvImport(text, existing))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err))
+    }
+  }
+
+  const handleConfirmImport = async () => {
+    const toImport = importValidation?.rows ?? []
+    if (!toImport.length) {
+      return
+    }
+    setError('')
+    try {
+      const result = await importImageAssetsCsvRows(toImport)
+      await refreshPlaceImageCatalog()
+      onChanged?.()
+      await loadRows()
+      setImportValidation(null)
+      setImportFlash(`Imported ${result.inserted} row(s) (upserted by place_key)`)
+      window.setTimeout(() => setImportFlash(''), 3000)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err))
+    }
+  }
+
   return (
     <div className="iam">
       <header className="iam-head">
         <div>
           <h3>Image metadata</h3>
           <p className="iam-sub">
-            Photo credits for Storage files in <code>kmapimages</code>. Images are matched by
-            place name at runtime — no URL stored in CSV.
+            Photo credits for Storage files in <code>kmapimages</code>. One row per place — CSV
+            import upserts by <code>place_key</code> (derived from place_name).
           </p>
         </div>
-        <button type="button" className="iam-btn" onClick={loadRows} disabled={loading}>
-          Refresh
-        </button>
+        <div className="iam-head-actions">
+          <button type="button" className="iam-btn" onClick={handleDownloadTemplate}>
+            Template
+          </button>
+          <button type="button" className="iam-btn" onClick={handleExportCsv} disabled={loading}>
+            Export CSV
+          </button>
+          <label className="iam-btn iam-btn--file">
+            Import CSV
+            <input
+              ref={importInputRef}
+              type="file"
+              accept=".csv,text/csv"
+              hidden
+              onChange={handleImportFile}
+            />
+          </label>
+          <button type="button" className="iam-btn" onClick={loadRows} disabled={loading}>
+            Refresh
+          </button>
+        </div>
       </header>
 
       {flash ? <p className="iam-flash">{flash}</p> : null}
+      {importFlash ? <p className="iam-flash">{importFlash}</p> : null}
       {error ? <p className="iam-error">{error}</p> : null}
 
       <form className="iam-form" onSubmit={handleSubmit}>
@@ -135,6 +209,7 @@ export function ImageAssetsManager({ onChanged }) {
               value={form.place_name}
               onChange={(e) => setForm((prev) => ({ ...prev, place_name: e.target.value }))}
               placeholder="Gyeongbokgung Palace"
+              required
             />
           </label>
           <label>
@@ -142,7 +217,7 @@ export function ImageAssetsManager({ onChanged }) {
             <input
               value={form.file_name}
               onChange={(e) => setForm((prev) => ({ ...prev, file_name: e.target.value }))}
-              placeholder="Gyeongbokgung Palace.jpg"
+              placeholder="Gyeongbokgung_Palace.jpg"
             />
           </label>
           <label>
@@ -220,6 +295,7 @@ export function ImageAssetsManager({ onChanged }) {
             <thead>
               <tr>
                 <th>Place</th>
+                <th>place_key</th>
                 <th>File</th>
                 <th>Credit</th>
                 <th />
@@ -229,6 +305,9 @@ export function ImageAssetsManager({ onChanged }) {
               {rows.map((row) => (
                 <tr key={imageAssetRowKey(row)}>
                   <td>{row.place_name || '—'}</td>
+                  <td>
+                    <code>{row.place_key || '—'}</code>
+                  </td>
                   <td>{row.file_name || '—'}</td>
                   <td>
                     {[row.image_author, row.image_source].filter(Boolean).join(' / ') || '—'}
@@ -260,6 +339,14 @@ export function ImageAssetsManager({ onChanged }) {
             </tbody>
           </table>
         </div>
+      ) : null}
+
+      {importValidation ? (
+        <ImageAssetsCsvImportModal
+          validation={importValidation}
+          onConfirm={handleConfirmImport}
+          onClose={() => setImportValidation(null)}
+        />
       ) : null}
     </div>
   )

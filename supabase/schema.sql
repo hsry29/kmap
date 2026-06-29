@@ -183,8 +183,9 @@ create policy "kmapimages update"
   with check (bucket_id = 'kmapimages');
 
 -- ── 7) Image metadata (photo credits) ─────────────────────────────────────
--- 실제 운영 스키마: id / created_at 없음, place_name NOT NULL
 create table if not exists public.image_assets (
+  id uuid primary key default gen_random_uuid(),
+  place_key text not null,
   place_name text not null,
   file_name text,
   image_source text,
@@ -195,11 +196,28 @@ create table if not exists public.image_assets (
   is_active boolean not null default true
 );
 
+create unique index if not exists image_assets_place_key_unique
+  on public.image_assets (place_key);
+
 create index if not exists image_assets_place_name_idx
   on public.image_assets (place_name);
 
 create index if not exists image_assets_file_name_idx
   on public.image_assets (file_name);
+
+create or replace function public.derive_image_asset_place_key(name text)
+returns text
+language sql
+immutable
+as $$
+  select nullif(
+    trim(both '-' from regexp_replace(
+      regexp_replace(lower(trim(coalesce(name, ''))), '[\s_]+', '-', 'g'),
+      '-+', '-', 'g'
+    )),
+    ''
+  )
+$$;
 
 alter table public.image_assets enable row level security;
 

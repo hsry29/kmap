@@ -6,7 +6,7 @@ import { readFileSync } from 'fs'
 import { createClient } from '@supabase/supabase-js'
 
 const COLS =
-  'place_name, file_name, image_source, image_author, image_license, image_source_url, notes, is_active'
+  'id, place_key, place_name, file_name, image_source, image_author, image_license, image_source_url, notes, is_active'
 
 function loadEnv() {
   try {
